@@ -12,23 +12,12 @@ def main():
         print("dataset file 'cnacer.csv' not found.")
         exit()
 
-    if 'id' in data.columns:
-        data.drop('id', axis=1, inplace=True)
-
-    if 'Unnamed: 32' in data.columns:
-        data.drop('Unnamed: 32', axis=1, inplace=True)
-
-    # if data['diagnosis'].dtype == 'O':
-    #     data['diagnosis'] = data['diagnosis'].map({'M': 1, 'B': 0})
+    data = clean_data(data)
     
     data['diagnosis'] = data['diagnosis'].map({'M': 1, 'B': 0})
 
-
-    X_df = data.drop('diagnosis', axis=1)
-    Y_df = data['diagnosis']
-
-    X_np = X_df.values
-    Y_np = Y_df.values
+    X_np = data.drop('diagnosis', axis=1).values
+    Y_np = data['diagnosis'].values
 
     X_train, X_test, y_train, y_test = split(X_np, Y_np)
 
@@ -36,17 +25,15 @@ def main():
     accuracies = []
 
     for k in k_values:
-        acc = cv_accuracy(X_np, Y_np, k_value=k, n_folds=5)
+        acc = cross_validation_accuracy(X_np, Y_np, k_value=k, n_folds=5)
         accuracies.append(acc)
         print(f"K={k}  Accuracy={acc:.4f}")
 
-    # پیدا کردن بهترین K
     best_k = k_values[np.argmax(accuracies)]
     print(f"Best K = {best_k}")
 
-    # رسم نمودار Accuracy بر حسب K
-    plt.plot(k_values, accuracies, marker='o')
-    plt.title("Accuracy vs K")
+    plt.plot(k_values, accuracies)
+    plt.title("Accuracy - K")
     plt.xlabel("K")
     plt.ylabel("Accuracy")
     plt.grid(True)
@@ -55,8 +42,17 @@ def main():
     print('data description:\n', data.describe())
     print('data info:\n' , data.info())
 
-    print (knn_predict(X_train, y_train, X_test, 13))
-    print()
+    for i in range(1, 17):
+        knn_results = knn_predict(X_train, y_train, X_test, i)
+        # print('KNN predictions (k=13):')
+        # print (knn_results)
+
+        # print('real test targets:')
+        # print (y_test)
+
+        print(f'accuracy (k={i}): ', get_accuracy(knn_results, y_test))
+
+
 
 if __name__ == "__main__":
     main()

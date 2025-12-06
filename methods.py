@@ -2,6 +2,15 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
+def clean_data(data):
+    if 'id' in data.columns:
+        data.drop('id', axis=1, inplace=True)
+
+    if 'Unnamed: 32' in data.columns:
+        data.drop('Unnamed: 32', axis=1, inplace=True)
+
+    return data
+
 def split(X, y, test_size=0.2, random_state=42):
     np.random.seed(random_state)
     n = len(X)
@@ -40,7 +49,7 @@ def knn_predict(X_train, y_train, X_test, k):
         y_pred.append(knn_predict_point(X_train, y_train, x_test_point, k))
     return np.array(y_pred)
 
-def cv_accuracy(X, y, k_value, n_folds=5):
+def cross_validation_accuracy(X, y, k_value, n_folds=5):
     accuracies = []
     fold_size = len(X) // n_folds
     
@@ -56,7 +65,10 @@ def cv_accuracy(X, y, k_value, n_folds=5):
         
         y_pred_cv = knn_predict(X_train_cv, y_train_cv, X_test_cv, k_value)
         
-        accuracy = np.mean(y_pred_cv == y_test_cv)
-        accuracies.append(accuracy)
+        accuracies.append(get_accuracy(y_pred_cv, y_test_cv))
         
     return np.mean(accuracies)
+
+def get_accuracy(predictions, test_targets):    
+    return np.mean(predictions == test_targets)
+
