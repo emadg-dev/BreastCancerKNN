@@ -1,3 +1,6 @@
+# first part of the problem:
+# using non scaled raw data for knn model making
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -32,26 +35,15 @@ def main():
     best_k = k_values[np.argmax(accuracies)]
     print(f"Best K = {best_k}")
 
-    plt.plot(k_values, accuracies)
-    plt.title("Accuracy - K")
-    plt.xlabel("K")
-    plt.ylabel("Accuracy")
-    plt.grid(True)
-    plt.show()
+    # plt.plot(k_values, accuracies)
+    # plt.title("Accuracy - K")
+    # plt.xlabel("K")
+    # plt.ylabel("Accuracy")
+    # plt.grid(True)
+    # plt.show()
 
-    print('data description:\n', data.describe())
-    print('data info:\n' , data.info())
-
-    for i in range(1, 17):
-        knn_results = knn_predict(X_train, y_train, X_test, i)
-        # print('KNN predictions (k=13):')
-        # print (knn_results)
-
-        # print('real test targets:')
-        # print (y_test)
-
-        print(f'accuracy (k={i}): ', get_accuracy(knn_results, y_test))
-
+    # print('data description:\n', data.describe())
+    # print('data info:\n' , data.info())
 
 
 if __name__ == "__main__":
