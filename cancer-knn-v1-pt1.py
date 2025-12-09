@@ -28,19 +28,19 @@ def main():
     accuracies = []
 
     for k in k_values:
-        acc = cross_validation_accuracy(X_np, Y_np, k_value=k, n_folds=5)
+        acc = cross_validation_accuracy(X_train, y_train, k_value=k, n_folds=5)
         accuracies.append(acc)
         print(f"K={k}  Accuracy={acc:.4f}")
 
     best_k = k_values[np.argmax(accuracies)]
     print(f"Best K = {best_k}")
 
-    # plt.plot(k_values, accuracies)
-    # plt.title("Accuracy - K")
-    # plt.xlabel("K")
-    # plt.ylabel("Accuracy")
-    # plt.grid(True)
-    # plt.show()
+    plt.plot(k_values, accuracies)
+    plt.title("Accuracy - K")
+    plt.xlabel("K")
+    plt.ylabel("Accuracy")
+    plt.grid(True)
+    plt.show()
 
     # print('data description:\n', data.describe())
     # print('data info:\n' , data.info())
