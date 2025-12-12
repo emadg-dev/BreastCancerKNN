@@ -171,3 +171,75 @@ def get_grouped_features(X_df):
 def get_X_by_features(X_df, feature_group):
     X_feature_group = X_df[feature_group]
     return X_feature_group
+
+
+def noise_injection(X_train, y_train, noise_rate, random_state=42):
+
+    np.random.seed(random_state)
+    n_samples = len(X_train)
+    
+    n_noise_labels = int(noise_rate * n_samples)
+    noise_indices_labels = np.random.choice(n_samples, n_noise_labels, replace=False)
+    
+    y_noisy = y_train.copy()
+    
+    y_noisy[noise_indices_labels] = 1 - y_noisy[noise_indices_labels]
+
+    X_noisy = X_train.copy()
+    
+    n_noise_features = int(noise_rate * X_train.size)
+    
+    noise_std = noise_rate
+    
+    noise_indices_features = np.random.choice(X_train.size, n_noise_features, replace=False)
+    X_noisy.flat[noise_indices_features] += np.random.normal(0, noise_std, n_noise_features)
+    
+    return X_noisy, y_noisy
+
+def get_optimal_k(X_train, Y_train):
+    k_values = range(1, 17)
+    accuracies = []
+
+    for k in k_values:
+        acc = cross_validation_accuracy(X_train, Y_train, k_value=k, n_folds=5)
+        accuracies.append(acc)
+    return k_values[np.argmax(accuracies)]
+def plot_noise_impact(results_clean, optimal_clean_k, results_noisy_10, optimal_noisy_10_k, results_noisy_20, optimal_noisy_20_k):
+    noise_rates_plot = [0.0, 0.10, 0.20]
+
+    # --- 1. استخراج مقادیر Accuracy ---
+    
+    # K=1
+    k1_accs = [results_clean[1], results_noisy_10[1], results_noisy_20[1]]
+    
+    # K=K_OPT (استفاده از K بهینه برای هر ستون داده)
+    kopt_accs = [results_clean[optimal_clean_k], 
+                 results_noisy_10[optimal_noisy_10_k], 
+                 results_noisy_20[optimal_noisy_20_k]]
+                 
+    # K=16
+    k16_accs = [results_clean[16], results_noisy_10[16], results_noisy_20[16]]
+
+    # --- 2. Plotting و برچسب‌گذاری متغیر ---
+    
+    # برچسب خط K_opt باید نشان دهد که K از چه مقداری (تمیز) تا چه مقداری (20% نویز) تغییر کرده است.
+    k_opt_label = f'K_opt: {optimal_clean_k} to {optimal_noisy_20_k} (Optimal for Each Noise Level)'
+    
+    plt.figure(figsize=(9, 6))
+
+    # K=1 (حساس‌ترین)
+    plt.plot(noise_rates_plot, k1_accs, marker='o', linestyle='-', color='red', label='K=1 (Most Sensitive)')
+    
+    # K_opt (نمایش تغییرات K بهینه در هر سطح نویز)
+    plt.plot(noise_rates_plot, kopt_accs, marker='s', linestyle='--', color='green', label=k_opt_label)
+    
+    # K=16 (صاف‌کننده نویز)
+    plt.plot(noise_rates_plot, k16_accs, marker='^', linestyle='-', color='blue', label='K=16 (Noise Smoother)')
+
+    plt.title('Impact of Training Data Noise on Test Accuracy (KNN)')
+    plt.xlabel('Noise Rate in Training Data')
+    plt.ylabel('Test Accuracy')
+    plt.xticks(noise_rates_plot, ['0%', '10%', '20%'])
+    plt.legend()
+    plt.grid(True, linestyle='--')
+    plt.show()
